@@ -1,0 +1,972 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="theme-color" content="#0d3b52" />
+  <title>Flash Report SSMAC</title>
+  <style>
+    :root{
+      --azul:#0d3b52;
+      --azul2:#155f7f;
+      --verde:#199b68;
+      --vermelho:#c73f3f;
+      --cinza:#f3f6f8;
+      --borda:#d3dde3;
+      --texto:#20313a;
+      --branco:#ffffff;
+      --sombra:0 8px 24px rgba(13,59,82,.10);
+    }
+
+    *{box-sizing:border-box}
+
+    body{
+      margin:0;
+      font-family:Arial,Helvetica,sans-serif;
+      background:var(--cinza);
+      color:var(--texto);
+    }
+
+    header{
+      background:linear-gradient(135deg,var(--azul),var(--azul2));
+      color:white;
+      padding:18px 16px;
+      position:sticky;
+      top:0;
+      z-index:10;
+      box-shadow:0 4px 14px rgba(0,0,0,.18);
+    }
+
+    header h1{
+      margin:0;
+      font-size:1.3rem;
+    }
+
+    header p{
+      margin:4px 0 0;
+      opacity:.85;
+      font-size:.9rem;
+    }
+
+    main{
+      max-width:1050px;
+      margin:0 auto;
+      padding:18px 14px 40px;
+    }
+
+    .tabs{
+      display:grid;
+      grid-template-columns:1fr 1fr;
+      gap:10px;
+      margin-bottom:16px;
+    }
+
+    .tab{
+      padding:12px;
+      border:1px solid var(--borda);
+      border-radius:10px;
+      background:white;
+      color:var(--azul);
+      font-weight:bold;
+      cursor:pointer;
+    }
+
+    .tab.ativo{
+      background:var(--azul);
+      color:white;
+      border-color:var(--azul);
+    }
+
+    .tela{display:none}
+    .tela.ativa{display:block}
+
+    .card{
+      background:white;
+      border:1px solid var(--borda);
+      border-radius:14px;
+      padding:16px;
+      margin-bottom:15px;
+      box-shadow:var(--sombra);
+    }
+
+    .card h2,.card h3{
+      margin:0 0 14px;
+      color:var(--azul);
+    }
+
+    .linha-titulo{
+      display:flex;
+      justify-content:space-between;
+      align-items:center;
+      gap:10px;
+      margin-bottom:14px;
+    }
+
+    .grid{
+      display:grid;
+      grid-template-columns:repeat(2,minmax(0,1fr));
+      gap:13px;
+    }
+
+    .campo{
+      display:flex;
+      flex-direction:column;
+      gap:6px;
+    }
+
+    .campo.full{grid-column:1/-1}
+
+    label{
+      font-weight:bold;
+      font-size:.92rem;
+      color:#29414d;
+    }
+
+    input,textarea,select{
+      width:100%;
+      border:1px solid #c5d1d8;
+      border-radius:10px;
+      padding:11px 12px;
+      font-size:1rem;
+      background:white;
+      color:var(--texto);
+    }
+
+    textarea{
+      min-height:90px;
+      resize:vertical;
+    }
+
+    input:focus,textarea:focus,select:focus{
+      outline:none;
+      border-color:var(--azul2);
+      box-shadow:0 0 0 3px rgba(21,95,127,.12);
+    }
+
+    .data-linha{
+      display:flex;
+      gap:8px;
+    }
+
+    .data-linha input{flex:1}
+
+    .btn-calendario{
+      width:50px;
+      border:1px solid #c5d1d8;
+      background:#eaf2f6;
+      border-radius:10px;
+      cursor:pointer;
+      font-size:1.1rem;
+    }
+
+    .btn{
+      border:none;
+      border-radius:10px;
+      padding:11px 14px;
+      font-weight:bold;
+      cursor:pointer;
+    }
+
+    .btn-primario{background:var(--azul);color:white}
+    .btn-secundario{background:#e7f0f4;color:var(--azul)}
+    .btn-verde{background:var(--verde);color:white}
+    .btn-perigo{background:#fdeaea;color:var(--vermelho);border:1px solid #f2bcbc}
+    .btn-contorno{background:white;color:var(--azul);border:1px solid #b7cbd5}
+    .btn-pequeno{padding:8px 10px;font-size:.88rem}
+
+    .acoes-botoes{
+      display:flex;
+      flex-wrap:wrap;
+      gap:9px;
+      margin-top:16px;
+    }
+
+    .ocorrencia{
+      border:1px solid #bfd0d9;
+      border-radius:12px;
+      background:#fbfdfe;
+      padding:14px;
+      margin-bottom:14px;
+    }
+
+    .ocorrencia-topo,.acao-topo{
+      display:flex;
+      justify-content:space-between;
+      align-items:center;
+      gap:10px;
+      margin-bottom:12px;
+    }
+
+    .lista-acoes{
+      display:grid;
+      gap:10px;
+      margin-top:10px;
+    }
+
+    .acao{
+      border:1px dashed #bfd0d9;
+      border-radius:10px;
+      background:white;
+      padding:12px;
+    }
+
+    .oculto{display:none!important}
+
+    .preview{
+      white-space:pre-wrap;
+      background:#f7fafb;
+      border:1px solid #d0dde3;
+      border-radius:10px;
+      padding:15px;
+      min-height:260px;
+      line-height:1.5;
+      overflow-wrap:anywhere;
+    }
+
+    .historico{
+      display:grid;
+      gap:12px;
+    }
+
+    .item-historico{
+      border:1px solid var(--borda);
+      border-radius:12px;
+      padding:14px;
+      background:white;
+    }
+
+    .item-topo{
+      display:flex;
+      justify-content:space-between;
+      align-items:flex-start;
+      gap:12px;
+    }
+
+    .meta{
+      display:grid;
+      gap:4px;
+    }
+
+    .meta strong{color:var(--azul)}
+
+    .vazio{
+      text-align:center;
+      padding:28px 10px;
+      color:#667782;
+    }
+
+    .toast{
+      position:fixed;
+      left:50%;
+      bottom:25px;
+      transform:translateX(-50%) translateY(20px);
+      background:#14262f;
+      color:white;
+      padding:12px 16px;
+      border-radius:10px;
+      opacity:0;
+      pointer-events:none;
+      transition:.2s;
+      z-index:50;
+      min-width:280px;
+      text-align:center;
+    }
+
+    .toast.visivel{
+      opacity:1;
+      transform:translateX(-50%) translateY(0);
+    }
+
+    @media(max-width:720px){
+      .grid{grid-template-columns:1fr}
+      .acoes-botoes .btn{width:100%}
+      .item-topo{flex-direction:column}
+      .linha-titulo{align-items:flex-start}
+    }
+  </style>
+
+  <link rel="manifest" href="manifest.webmanifest">
+  <link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="Flash Report">
+  <meta name="mobile-web-app-capable" content="yes">
+
+</head>
+<body>
+<header>
+  <h1>🛡️ Flash Report SSMAC</h1>
+  <p>Reporte diário de segurança</p>
+</header>
+
+<main>
+  <div class="tabs">
+    <button class="tab ativo" data-tela="telaFormulario">📝 Novo reporte</button>
+    <button class="tab" data-tela="telaHistorico">📚 Histórico</button>
+  </div>
+
+  <section id="telaFormulario" class="tela ativa">
+    <form id="formReporte">
+      <div class="card">
+        <div class="linha-titulo">
+          <h2>Identificação</h2>
+          <span id="statusEdicao">Novo reporte</span>
+        </div>
+
+        <div class="grid">
+          <div class="campo">
+            <label for="local">Local *</label>
+            <input id="local" required placeholder="Ex.: Canteiro Vale VGR">
+          </div>
+
+          <div class="campo">
+            <label for="data">Data *</label>
+            <div class="data-linha">
+              <input id="data" type="date" required>
+              <button class="btn-calendario" type="button" data-calendario="data">📅</button>
+            </div>
+          </div>
+
+          <div class="campo">
+            <label for="gerencia">Gerência *</label>
+            <input id="gerencia" required>
+          </div>
+
+          <div class="campo">
+            <label for="gerente">Gerente *</label>
+            <input id="gerente" required>
+          </div>
+
+          <div class="campo">
+            <label for="gestorFiscal">Gestor/Fiscal *</label>
+            <input id="gestorFiscal" required>
+          </div>
+
+          <div class="campo">
+            <label for="emitente">Emitente *</label>
+            <input id="emitente" required>
+          </div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="linha-titulo">
+          <h2>Ocorrências</h2>
+          <button id="btnAdicionarOcorrencia" class="btn btn-secundario btn-pequeno" type="button">➕ Adicionar ocorrência</button>
+        </div>
+        <div id="listaOcorrencias"></div>
+      </div>
+
+      <div class="card">
+        <h2>Pré-visualização da mensagem</h2>
+        <div id="preview" class="preview"></div>
+
+        <div class="acoes-botoes">
+          <button class="btn btn-primario" type="submit">💾 Salvar reporte</button>
+          <button id="btnAtualizarPreview" class="btn btn-secundario" type="button">👁️ Atualizar prévia</button>
+          <button id="btnCopiar" class="btn btn-contorno" type="button">📋 Copiar mensagem</button>
+          <button id="btnWhatsApp" class="btn btn-verde" type="button">🟢 Abrir no WhatsApp</button>
+          <button id="btnExcluirAtual" class="btn btn-perigo oculto" type="button">🗑️ Excluir reporte</button>
+          <button id="btnNovo" class="btn btn-contorno" type="button">➕ Novo reporte</button>
+        </div>
+      </div>
+    </form>
+  </section>
+
+  <section id="telaHistorico" class="tela">
+    <div class="card">
+      <div class="linha-titulo">
+        <h2>Histórico</h2>
+        <button id="btnExcluirTodos" class="btn btn-perigo btn-pequeno" type="button">🗑️ Excluir todos</button>
+      </div>
+      <div id="historico" class="historico"></div>
+    </div>
+  </section>
+</main>
+
+<div id="toast" class="toast"></div>
+
+<template id="templateOcorrencia">
+  <article class="ocorrencia">
+    <div class="ocorrencia-topo">
+      <strong class="tituloOcorrencia">Ocorrência</strong>
+      <button class="btn btn-perigo btn-pequeno excluirOcorrencia" type="button">🗑️ Excluir ocorrência</button>
+    </div>
+
+    <div class="grid">
+      <div class="campo">
+        <label>Empresa</label>
+        <input class="empresa" placeholder="Nome da empresa">
+      </div>
+
+      <div class="campo">
+        <label>Localidade</label>
+        <input class="localidade" placeholder="Área ou localidade">
+      </div>
+
+      <div class="campo full">
+        <label>Descrição da atividade</label>
+        <textarea class="descricaoAtividade"></textarea>
+      </div>
+
+      <div class="campo full">
+        <label>Avaliações</label>
+        <textarea class="avaliacoes"></textarea>
+      </div>
+
+      <div class="campo">
+        <label>Houve interdição?</label>
+        <select class="houveInterdicao">
+          <option value="Não">Não</option>
+          <option value="Sim">Sim</option>
+        </select>
+      </div>
+
+      <div class="campo full campoInterdicao oculto">
+        <label>Descrição da interdição</label>
+        <textarea class="descricaoInterdicao"></textarea>
+      </div>
+    </div>
+
+    <div class="linha-titulo" style="margin-top:16px">
+      <h3>Ações / Datas</h3>
+      <button class="btn btn-secundario btn-pequeno adicionarAcao" type="button">➕ Adicionar ação</button>
+    </div>
+
+    <div class="lista-acoes"></div>
+  </article>
+</template>
+
+<template id="templateAcao">
+  <div class="acao">
+    <div class="acao-topo">
+      <strong>Ação</strong>
+      <button class="btn btn-perigo btn-pequeno excluirAcao" type="button">🗑️ Excluir</button>
+    </div>
+
+    <div class="grid">
+      <div class="campo">
+        <label>Descrição da ação</label>
+        <input class="descricaoAcao">
+      </div>
+
+      <div class="campo">
+        <label>Prazo da ação</label>
+        <div class="data-linha">
+          <input class="dataAcao" type="date">
+          <button class="btn-calendario calendarioAcao" type="button">📅</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</template>
+
+<script>
+(() => {
+  "use strict";
+
+  const CHAVE = "flash_report_ssmac_html_v1";
+  let idEdicao = null;
+
+  const $ = (seletor, raiz = document) => raiz.querySelector(seletor);
+  const $$ = (seletor, raiz = document) => [...raiz.querySelectorAll(seletor)];
+
+  function hoje() {
+    const agora = new Date();
+    const local = new Date(agora.getTime() - agora.getTimezoneOffset() * 60000);
+    return local.toISOString().slice(0, 10);
+  }
+
+  function formatarData(valor) {
+    if (!valor) return "";
+    const partes = valor.split("-");
+    if (partes.length !== 3) return valor;
+    return `${partes[2]}/${partes[1]}/${partes[0]}`;
+  }
+
+  function novoId() {
+    return `${Date.now()}-${Math.random().toString(16).slice(2)}`;
+  }
+
+  function aviso(texto) {
+    const toast = $("#toast");
+    toast.textContent = texto;
+    toast.classList.add("visivel");
+    clearTimeout(toast.timer);
+    toast.timer = setTimeout(() => toast.classList.remove("visivel"), 2200);
+  }
+
+  function lerReportes() {
+    try {
+      return JSON.parse(localStorage.getItem(CHAVE)) || [];
+    } catch {
+      return [];
+    }
+  }
+
+  function salvarReportes(lista) {
+    localStorage.setItem(CHAVE, JSON.stringify(lista));
+  }
+
+  function abrirCalendario(input) {
+    if (!input) return;
+    try {
+      if (typeof input.showPicker === "function") {
+        input.showPicker();
+      } else {
+        input.focus();
+        input.click();
+      }
+    } catch {
+      input.focus();
+      input.click();
+    }
+  }
+
+  function adicionarAcao(container, dados = {}) {
+    const frag = $("#templateAcao").content.cloneNode(true);
+    const acao = $(".acao", frag);
+
+    $(".descricaoAcao", acao).value = dados.descricao || "";
+    $(".dataAcao", acao).value = dados.data || "";
+
+    $(".calendarioAcao", acao).addEventListener("click", () => {
+      abrirCalendario($(".dataAcao", acao));
+    });
+
+    $(".excluirAcao", acao).addEventListener("click", () => {
+      if (confirm("Deseja excluir esta ação?")) {
+        acao.remove();
+        atualizarPreview();
+      }
+    });
+
+    $$("input", acao).forEach(campo => {
+      campo.addEventListener("input", atualizarPreview);
+      campo.addEventListener("change", atualizarPreview);
+    });
+
+    container.appendChild(acao);
+  }
+
+  function adicionarOcorrencia(dados = {}) {
+    const frag = $("#templateOcorrencia").content.cloneNode(true);
+    const ocorrencia = $(".ocorrencia", frag);
+
+    $(".empresa", ocorrencia).value = dados.empresa || "";
+    $(".localidade", ocorrencia).value = dados.localidade || "";
+    $(".descricaoAtividade", ocorrencia).value = dados.descricaoAtividade || "";
+    $(".avaliacoes", ocorrencia).value = dados.avaliacoes || "";
+    $(".houveInterdicao", ocorrencia).value = dados.houveInterdicao || "Não";
+    $(".descricaoInterdicao", ocorrencia).value = dados.descricaoInterdicao || "";
+
+    const seletorInterdicao = $(".houveInterdicao", ocorrencia);
+    const campoInterdicao = $(".campoInterdicao", ocorrencia);
+
+    function atualizarInterdicao() {
+      const mostrar = seletorInterdicao.value === "Sim";
+      campoInterdicao.classList.toggle("oculto", !mostrar);
+      if (!mostrar) {
+        $(".descricaoInterdicao", ocorrencia).value = "";
+      }
+      atualizarPreview();
+    }
+
+    seletorInterdicao.addEventListener("change", atualizarInterdicao);
+
+    $(".adicionarAcao", ocorrencia).addEventListener("click", () => {
+      adicionarAcao($(".lista-acoes", ocorrencia));
+      atualizarPreview();
+    });
+
+    $(".excluirOcorrencia", ocorrencia).addEventListener("click", () => {
+      if (confirm("Deseja excluir esta ocorrência e todas as ações vinculadas?")) {
+        ocorrencia.remove();
+        numerarOcorrencias();
+        if (!$$(".ocorrencia", $("#listaOcorrencias")).length) {
+          adicionarOcorrencia();
+        }
+        atualizarPreview();
+      }
+    });
+
+    $$("input,textarea,select", ocorrencia).forEach(campo => {
+      campo.addEventListener("input", atualizarPreview);
+      campo.addEventListener("change", atualizarPreview);
+    });
+
+    $("#listaOcorrencias").appendChild(ocorrencia);
+
+    if (Array.isArray(dados.acoes) && dados.acoes.length) {
+      dados.acoes.forEach(acao => adicionarAcao($(".lista-acoes", ocorrencia), acao));
+    } else {
+      adicionarAcao($(".lista-acoes", ocorrencia));
+    }
+
+    atualizarInterdicao();
+    numerarOcorrencias();
+  }
+
+  function numerarOcorrencias() {
+    $$(".ocorrencia", $("#listaOcorrencias")).forEach((item, indice) => {
+      $(".tituloOcorrencia", item).textContent = `Ocorrência ${indice + 1}`;
+    });
+  }
+
+  function coletarOcorrencia(item) {
+    return {
+      empresa: $(".empresa", item).value.trim(),
+      localidade: $(".localidade", item).value.trim(),
+      descricaoAtividade: $(".descricaoAtividade", item).value.trim(),
+      avaliacoes: $(".avaliacoes", item).value.trim(),
+      houveInterdicao: $(".houveInterdicao", item).value,
+      descricaoInterdicao: $(".descricaoInterdicao", item).value.trim(),
+      acoes: $$(".acao", item)
+        .map(acao => ({
+          descricao: $(".descricaoAcao", acao).value.trim(),
+          data: $(".dataAcao", acao).value
+        }))
+        .filter(acao => acao.descricao || acao.data)
+    };
+  }
+
+  function coletarReporte() {
+    return {
+      id: idEdicao || novoId(),
+      local: $("#local").value.trim(),
+      data: $("#data").value,
+      gerencia: $("#gerencia").value.trim(),
+      gerente: $("#gerente").value.trim(),
+      gestorFiscal: $("#gestorFiscal").value.trim(),
+      emitente: $("#emitente").value.trim(),
+      ocorrencias: $$(".ocorrencia", $("#listaOcorrencias")).map(coletarOcorrencia),
+      atualizadoEm: new Date().toISOString()
+    };
+  }
+
+  function textoOcorrencia(item) {
+    const interdicao = item.houveInterdicao === "Sim"
+      ? (item.descricaoInterdicao || "Interdição registrada sem descrição.")
+      : "Não aplicável";
+
+    const acoes = item.acoes.length
+      ? item.acoes.map(acao => {
+          const texto = acao.descricao || "Ação sem descrição";
+          return acao.data ? `• ${texto} — ${formatarData(acao.data)}` : `• ${texto}`;
+        }).join("\n")
+      : "Não aplicável";
+
+    return [
+      "✅ *Empresa / Localidade:*",
+      `${item.empresa || "Não informado"}${item.localidade ? " / " + item.localidade : ""}`,
+      "",
+      "✅ *Descrição Atividade*",
+      item.descricaoAtividade || "Não informado",
+      "",
+      "✅ *Avaliações*",
+      item.avaliacoes || "Não informado",
+      "",
+      "🚨 *Interdição*",
+      interdicao,
+      "",
+      "✅ *Ações / Datas:*",
+      acoes
+    ].join("\n");
+  }
+
+  function gerarMensagem(reporte) {
+    const ocorrencias = reporte.ocorrencias.length
+      ? reporte.ocorrencias.map(textoOcorrencia).join("\n\n")
+      : "Nenhuma ocorrência registrada.";
+
+    return [
+      "📍*Flash Report*",
+      "",
+      "📊*Diretoria Projetos Capital Sul/Mariana*",
+      "",
+      `*Local:* ${reporte.local || "Não informado"}`,
+      `*Data:* ${formatarData(reporte.data) || "Não informado"}`,
+      `*Gerência:* ${reporte.gerencia || "Não informado"}`,
+      `*Gerente:* ${reporte.gerente || "Não informado"}`,
+      `*Gestor/Fiscal:* ${reporte.gestorFiscal || "Não informado"}`,
+      "",
+      ocorrencias,
+      "",
+      "✅ *Emitente:*",
+      reporte.emitente || "Não informado",
+      "",
+      "*Temos a segurança e a qualidade que toleramos*"
+    ].join("\n");
+  }
+
+  function atualizarPreview() {
+    $("#preview").textContent = gerarMensagem(coletarReporte());
+  }
+
+  function validar(reporte) {
+    const campos = [
+      ["Local", reporte.local],
+      ["Data", reporte.data],
+      ["Gerência", reporte.gerencia],
+      ["Gerente", reporte.gerente],
+      ["Gestor/Fiscal", reporte.gestorFiscal],
+      ["Emitente", reporte.emitente]
+    ];
+
+    const faltantes = campos.filter(([, valor]) => !valor).map(([nome]) => nome);
+    if (faltantes.length) {
+      aviso(`Preencha: ${faltantes.join(", ")}`);
+      return false;
+    }
+    return true;
+  }
+
+  function salvarReporte(evento) {
+    evento.preventDefault();
+    const reporte = coletarReporte();
+    if (!validar(reporte)) return;
+
+    const lista = lerReportes();
+    const indice = lista.findIndex(item => item.id === reporte.id);
+
+    if (indice >= 0) lista[indice] = reporte;
+    else lista.unshift(reporte);
+
+    salvarReportes(lista);
+    idEdicao = reporte.id;
+    $("#statusEdicao").textContent = "Editando reporte";
+    $("#btnExcluirAtual").classList.remove("oculto");
+    renderizarHistorico();
+    aviso("Reporte salvo com sucesso.");
+  }
+
+  function limparFormulario() {
+    idEdicao = null;
+    $("#formReporte").reset();
+    $("#data").value = hoje();
+    $("#listaOcorrencias").innerHTML = "";
+    adicionarOcorrencia();
+    $("#statusEdicao").textContent = "Novo reporte";
+    $("#btnExcluirAtual").classList.add("oculto");
+    atualizarPreview();
+    mudarTela("telaFormulario");
+    window.scrollTo({top:0,behavior:"smooth"});
+  }
+
+  function carregarReporte(id) {
+    const reporte = lerReportes().find(item => item.id === id);
+    if (!reporte) return;
+
+    idEdicao = id;
+    $("#local").value = reporte.local || "";
+    $("#data").value = reporte.data || hoje();
+    $("#gerencia").value = reporte.gerencia || "";
+    $("#gerente").value = reporte.gerente || "";
+    $("#gestorFiscal").value = reporte.gestorFiscal || "";
+    $("#emitente").value = reporte.emitente || "";
+
+    $("#listaOcorrencias").innerHTML = "";
+    (reporte.ocorrencias || []).forEach(adicionarOcorrencia);
+    if (!(reporte.ocorrencias || []).length) adicionarOcorrencia();
+
+    $("#statusEdicao").textContent = "Editando reporte";
+    $("#btnExcluirAtual").classList.remove("oculto");
+    atualizarPreview();
+    mudarTela("telaFormulario");
+    window.scrollTo({top:0,behavior:"smooth"});
+  }
+
+  function excluirReporte(id) {
+    const lista = lerReportes();
+    const reporte = lista.find(item => item.id === id);
+    if (!reporte) return;
+
+    if (!confirm(`Deseja excluir o reporte de ${formatarData(reporte.data)} — ${reporte.local}?`)) return;
+
+    salvarReportes(lista.filter(item => item.id !== id));
+    if (idEdicao === id) limparFormulario();
+    renderizarHistorico();
+    aviso("Reporte excluído.");
+  }
+
+  async function copiarTexto(texto) {
+    try {
+      await navigator.clipboard.writeText(texto);
+      aviso("Mensagem copiada.");
+    } catch {
+      const area = document.createElement("textarea");
+      area.value = texto;
+      document.body.appendChild(area);
+      area.select();
+      document.execCommand("copy");
+      area.remove();
+      aviso("Mensagem copiada.");
+    }
+  }
+
+  function abrirWhatsApp(texto) {
+    window.open(`https://wa.me/?text=${encodeURIComponent(texto)}`, "_blank");
+  }
+
+  function renderizarHistorico() {
+    const container = $("#historico");
+    const lista = lerReportes().sort((a,b) => (b.atualizadoEm || "").localeCompare(a.atualizadoEm || ""));
+    container.innerHTML = "";
+
+    if (!lista.length) {
+      container.innerHTML = '<div class="vazio">Nenhum reporte salvo.</div>';
+      return;
+    }
+
+    lista.forEach(reporte => {
+      const item = document.createElement("div");
+      item.className = "item-historico";
+
+      const topo = document.createElement("div");
+      topo.className = "item-topo";
+
+      const meta = document.createElement("div");
+      meta.className = "meta";
+      meta.innerHTML = `
+        <strong>${escapar(reporte.local || "Sem local")}</strong>
+        <span>${formatarData(reporte.data)}</span>
+        <span>${escapar(reporte.gerencia || "")}</span>
+        <span>${(reporte.ocorrencias || []).length} ocorrência(s)</span>
+      `;
+
+      const botoes = document.createElement("div");
+      botoes.className = "acoes-botoes";
+      botoes.style.marginTop = "0";
+      botoes.innerHTML = `
+        <button class="btn btn-secundario btn-pequeno editar">✏️ Editar</button>
+        <button class="btn btn-contorno btn-pequeno copiar">📋 Copiar</button>
+        <button class="btn btn-verde btn-pequeno whatsapp">🟢 WhatsApp</button>
+        <button class="btn btn-perigo btn-pequeno excluir">🗑️ Excluir</button>
+      `;
+
+      $(".editar", botoes).addEventListener("click", () => carregarReporte(reporte.id));
+      $(".copiar", botoes).addEventListener("click", () => copiarTexto(gerarMensagem(reporte)));
+      $(".whatsapp", botoes).addEventListener("click", () => abrirWhatsApp(gerarMensagem(reporte)));
+      $(".excluir", botoes).addEventListener("click", () => excluirReporte(reporte.id));
+
+      topo.appendChild(meta);
+      topo.appendChild(botoes);
+      item.appendChild(topo);
+      container.appendChild(item);
+    });
+  }
+
+  function escapar(texto) {
+    return String(texto)
+      .replaceAll("&","&amp;")
+      .replaceAll("<","&lt;")
+      .replaceAll(">","&gt;")
+      .replaceAll('"',"&quot;")
+      .replaceAll("'","&#039;");
+  }
+
+  function mudarTela(id) {
+    $$(".tela").forEach(tela => tela.classList.toggle("ativa", tela.id === id));
+    $$(".tab").forEach(tab => tab.classList.toggle("ativo", tab.dataset.tela === id));
+    if (id === "telaHistorico") renderizarHistorico();
+  }
+
+  $$(".tab").forEach(tab => {
+    tab.addEventListener("click", () => mudarTela(tab.dataset.tela));
+  });
+
+  $$("[data-calendario]").forEach(botao => {
+    botao.addEventListener("click", () => abrirCalendario(document.getElementById(botao.dataset.calendario)));
+  });
+
+  $("#btnAdicionarOcorrencia").addEventListener("click", () => {
+    adicionarOcorrencia();
+    atualizarPreview();
+  });
+
+  $("#btnAtualizarPreview").addEventListener("click", atualizarPreview);
+  $("#btnCopiar").addEventListener("click", () => copiarTexto(gerarMensagem(coletarReporte())));
+  $("#btnWhatsApp").addEventListener("click", () => abrirWhatsApp(gerarMensagem(coletarReporte())));
+  $("#btnNovo").addEventListener("click", limparFormulario);
+
+  $("#btnExcluirAtual").addEventListener("click", () => {
+    if (idEdicao) excluirReporte(idEdicao);
+  });
+
+  $("#btnExcluirTodos").addEventListener("click", () => {
+    const lista = lerReportes();
+    if (!lista.length) return aviso("Não há reportes para excluir.");
+    if (!confirm("Deseja excluir todos os reportes salvos?")) return;
+    localStorage.removeItem(CHAVE);
+    limparFormulario();
+    renderizarHistorico();
+    aviso("Todos os reportes foram excluídos.");
+  });
+
+  $("#formReporte").addEventListener("submit", salvarReporte);
+
+  $$("input,textarea,select", $("#formReporte")).forEach(campo => {
+    campo.addEventListener("input", atualizarPreview);
+    campo.addEventListener("change", atualizarPreview);
+  });
+
+  $("#data").value = hoje();
+  adicionarOcorrencia();
+  atualizarPreview();
+  renderizarHistorico();
+})();
+</script>
+
+<script>
+  if ("serviceWorker" in navigator) {
+    window.addEventListener("load", () => {
+      navigator.serviceWorker.register("./sw.js")
+        .then(() => console.log("Service Worker registrado."))
+        .catch((erro) => console.error("Falha ao registrar Service Worker:", erro));
+    });
+  }
+
+  let deferredInstallPrompt = null;
+
+  window.addEventListener("beforeinstallprompt", (event) => {
+    event.preventDefault();
+    deferredInstallPrompt = event;
+
+    if (!document.getElementById("pwaInstallButton")) {
+      const button = document.createElement("button");
+      button.id = "pwaInstallButton";
+      button.type = "button";
+      button.textContent = "📲 Instalar aplicativo";
+      button.style.position = "fixed";
+      button.style.right = "16px";
+      button.style.bottom = "16px";
+      button.style.zIndex = "1000";
+      button.style.border = "none";
+      button.style.borderRadius = "12px";
+      button.style.padding = "12px 16px";
+      button.style.fontWeight = "700";
+      button.style.cursor = "pointer";
+      button.style.background = "#0d3b52";
+      button.style.color = "#ffffff";
+      button.style.boxShadow = "0 8px 24px rgba(13,59,82,.25)";
+
+      button.addEventListener("click", async () => {
+        if (!deferredInstallPrompt) return;
+        deferredInstallPrompt.prompt();
+        await deferredInstallPrompt.userChoice;
+        deferredInstallPrompt = null;
+        button.remove();
+      });
+
+      document.body.appendChild(button);
+    }
+  });
+
+  window.addEventListener("appinstalled", () => {
+    deferredInstallPrompt = null;
+    document.getElementById("pwaInstallButton")?.remove();
+  });
+</script>
+
+</body>
+</html>

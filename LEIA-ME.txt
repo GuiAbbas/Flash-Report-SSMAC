@@ -1,0 +1,38 @@
+FLASH REPORT SSMAC — PWA
+
+CONTEÚDO
+- index.html
+- manifest.webmanifest
+- sw.js
+- offline.html
+- pasta icons
+
+COMO TESTAR CORRETAMENTE
+Uma PWA precisa ser aberta por HTTPS ou localhost. O Service Worker não funciona abrindo o arquivo diretamente por file://.
+
+TESTE LOCAL NO COMPUTADOR
+1. Extraia o ZIP.
+2. Abra um terminal dentro da pasta.
+3. Execute:
+   python -m http.server 8080
+4. Abra no navegador:
+   http://localhost:8080
+
+INSTALAÇÃO NO ANDROID
+1. Hospede a pasta em um endereço HTTPS.
+2. Abra o endereço no Chrome.
+3. Toque no botão “Instalar aplicativo” ou no menu do Chrome.
+4. Escolha “Adicionar à tela inicial” ou “Instalar app”.
+
+RECURSOS PWA
+- Instalação na tela inicial.
+- Abertura em modo aplicativo.
+- Ícones 192x192, 512x512 e maskable.
+- Cache dos arquivos principais.
+- Funcionamento offline após o primeiro carregamento.
+- Armazenamento local dos reportes.
+- Edição e exclusão.
+- Geração e compartilhamento da mensagem para WhatsApp.
+
+OBSERVAÇÃO
+O histórico continua armazenado no navegador/dispositivo. Limpar os dados do site poderá apagar os reportes.
